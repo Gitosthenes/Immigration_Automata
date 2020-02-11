@@ -34,6 +34,7 @@ AssetManager.prototype.downloadAll = function (callback) {
         img.src = path;
         this.cache[path] = img;
     }
+    if(this.isDone()) callback();
 }
 
 AssetManager.prototype.getAsset = function (path) {
