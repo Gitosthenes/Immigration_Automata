@@ -14,9 +14,18 @@ function Timer() {
     this.gameTime = 0;
     this.maxStep = 0.05;
     this.wallLastTimestamp = 0;
+
+    this.slowFactor = 4;
+    this.currentTick = this.slowFactor;
 }
 
 Timer.prototype.tick = function () {
+    if(this.currentTick == this.slowFactor){
+        this.currentTick = 0;
+    } else {
+        this.currentTick++;
+    }
+    
     var wallCurrent = Date.now();
     var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
     this.wallLastTimestamp = wallCurrent;
@@ -96,8 +105,10 @@ GameEngine.prototype.update = function () {
 
 GameEngine.prototype.loop = function () {
     this.clockTick = this.timer.tick();
-    this.update();
-    this.draw();
+    if(this.timer.currentTick == 0) {
+        this.update();
+        this.draw();
+    }
     this.space = null;
 }
 

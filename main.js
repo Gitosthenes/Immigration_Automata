@@ -3,7 +3,8 @@ function Universe(game, cellSize) {
     this.cellSize = cellSize;
     this.rows = game.surfaceWidth / cellSize;
     this.cols = game.surfaceHeight / cellSize;
-    this.grid = setupGrid(this.rows, this.cols);
+    this.currentGen = setupGrid(this.rows, this.cols);
+    this.nextGen = setupGrid(this.rows, this.cols);
     this.initializeGrid();
 }
 
@@ -13,7 +14,7 @@ Universe.prototype.constructor = Universe;
 Universe.prototype.initializeGrid = function() {
     for(let i = 0; i < this.rows; i++) {
         for(let j = 0; j < this.cols; j++) {
-            this.grid[i][j] = Math.floor(Math.random() * 2);
+            this.currentGen[i][j] = Math.floor(Math.random() * 2);
         }
     }
 }
@@ -22,43 +23,35 @@ Universe.prototype.getLiveNeighborCount = function(row, col) {
     let count = 0;
     for(let i = row-1; i < row+2; i++) {
         for(let j = col-1; j < col+2; j++) {
-            if(this.grid[i]) {
-                if(this.grid[i][j]) {
-                    if(!(i == row && j == col)) {
-                        count += this.grid[i][j];
-                    }
-                }
+            if(this.currentGen[i] && this.currentGen[i][j] && !(i == row && j == col)) {
+                count += this.currentGen[i][j];
             }
         }
     }
-    console.log(row + ", " + col + ": " + count);
     return count;
 }
 
 Universe.prototype.update = function() {
-    let newGrid = setupGrid(this.rows, this.cols);
-    // console.log(newGrid);
     for(let i = 0; i < this.rows; i++) {
         for(let j = 0; j < this.cols; j++) {
             let numLiveNeighbors = this.getLiveNeighborCount(i, j);
-            console.log(i + ", " + j + ": " + numLiveNeighbors);
-            if(this.grid[i][j] == 0) {
+            if(this.currentGen[i][j] == 0) {
                 if(numLiveNeighbors == 3) {
-                    newGrid[i][j] = 1;
+                    this.nextGen[i][j] = 1;
                 } else {
-                    newGrid[i][j] = 0;
+                    this.nextGen[i][j] = 0;
                 }
             } else {
                 if(numLiveNeighbors < 2 || numLiveNeighbors > 3) {
-                    newGrid[i][j] = 0;
+                    this.nextGen[i][j] = 0;
                 } else {
-                    newGrid[i][j] = 1;
+                    this.nextGen[i][j] = 1;
                 }
             }
         }
     }
-    // console.log(newGrid)
-    this.grid = newGrid;
+    this.currentGen = this.nextGen;
+    this.nextGen = setupGrid(this.rows, this.cols);
 
     Entity.prototype.update.call(this);
 }
@@ -69,7 +62,7 @@ Universe.prototype.draw = function(ctx) {
 
     for(let i = 0; i < this.rows; i++) {
         for(let j = 0; j < this.cols; j++) {
-            if(this.grid[i][j] == 1) {
+            if(this.currentGen[i][j] == 1) {
                 let x = i * this.cellSize;
                 let y = j * this.cellSize;
                 ctx.fillStyle = 'black';
@@ -102,6 +95,5 @@ ASSET_MANAGER.downloadAll(function() {
     gameEngine.start();
 
     //# ADD ENTITIES HERE:
-    console.log("adding entities")
     gameEngine.addEntity(new Universe(gameEngine, cellSize));
 });
