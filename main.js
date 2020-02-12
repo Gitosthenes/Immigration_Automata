@@ -14,39 +14,48 @@ Universe.prototype.constructor = Universe;
 Universe.prototype.randomizeGrid = function(grid) {
     for(let i = 0; i < this.rows; i++) {
         for(let j = 0; j < this.cols; j++) {
-            grid[i][j].state = Math.floor(Math.random() * 2);
+            grid[i][j].state = Math.floor(Math.random() * 3);
         }
     }
 }
 
-Universe.prototype.getLiveNeighborCount = function(row, col) {
-    let count = 0;
+Universe.prototype.getLiveNeighborCounts = function(row, col) {
+    let neighborVals = [];
     for(let i = row-1; i < row+2; i++) {
         for(let j = col-1; j < col+2; j++) {
-            if(this.currentGen[i] && this.currentGen[i][j] && !(i == row && j == col)) {
-                count += this.currentGen[i][j].state;
+            if(this.currentGen[i] && this.currentGen[i][j] && !(i == row && j == col) && this.currentGen[i][j].state != 0) {
+                neighborVals.push(this.currentGen[i][j].state);
             }
         }
     }
-    return count;
+    // get sum of each type of alive neighbor and set it to cell field
+    // @see https://stackoverflow.com/a/19395302/12322150
+    let that = this;
+    neighborVals.forEach(function(x) {
+        that.currentGen[row][col].neighborCounts[x] = (that.currentGen[row][col].neighborCounts[x] || 0) + 1;
+    });
 }
 
 Universe.prototype.update = function() {
+    let that = this;
     for(let i = 0; i < this.rows; i++) {
         for(let j = 0; j < this.cols; j++) {
-            let numLiveNeighbors = this.getLiveNeighborCount(i, j);
-            if(this.currentGen[i][j].state == 0) {
+            this.getLiveNeighborCounts(i, j);
+            let numLiveNeighbors = 0;
+            for(let field in this.currentGen[i][j].neighborCounts) {
+                numLiveNeighbors += this.currentGen[i][j].neighborCounts[field];
+            }
+            if(this.currentGen[i][j].state == 0) { //Current cell is dead
                 if(numLiveNeighbors == 3) {
-                    this.nextGen[i][j].state = 1;
+                    this.nextGen[i][j].state = this.currentGen[i][j].neighborCounts[1] > this.currentGen[i][j].neighborCounts[2] ? 1 : 2;
                 } else {
-                    // console.log(i + ", " + j);
                     this.nextGen[i][j].state = 0;
                 }
-            } else {
+            } else { //Current cell is alive
                 if(numLiveNeighbors < 2 || numLiveNeighbors > 3) {
                     this.nextGen[i][j].state = 0;
                 } else {
-                    this.nextGen[i][j].state = 1;
+                    this.nextGen[i][j].state = this.currentGen[i][j].state;
                 }
             }
         }
@@ -58,15 +67,18 @@ Universe.prototype.update = function() {
 }
 
 Universe.prototype.draw = function(ctx) {
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'black';
     ctx.fillRect(0,0, ctx.canvas.width, ctx.canvas.height);
 
     for(let i = 0; i < this.rows; i++) {
         for(let j = 0; j < this.cols; j++) {
+            let x = i * this.cellSize;
+            let y = j * this.cellSize;
             if(this.currentGen[i][j].state == 1) {
-                let x = i * this.cellSize;
-                let y = j * this.cellSize;
-                ctx.fillStyle = 'black';
+                ctx.fillStyle = 'green';
+                ctx.fillRect(x, y, this.cellSize, this.cellSize);
+            } else if(this.currentGen[i][j].state == 2) {
+                ctx.fillStyle = 'red';
                 ctx.fillRect(x, y, this.cellSize, this.cellSize);
             }
         }
@@ -88,8 +100,8 @@ function setupGrid(rows, cols) {
 
 function Cell(state) {
     this.state = state;
+    this.neighborCounts = {};
 }
-Cell.prototype.constructor = Cell;
 
 ASSET_MANAGER = new AssetManager();
 // ASSET_MANAGER.queueDownload('');
