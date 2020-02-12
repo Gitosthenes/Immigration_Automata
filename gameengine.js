@@ -14,9 +14,18 @@ function Timer() {
     this.gameTime = 0;
     this.maxStep = 0.05;
     this.wallLastTimestamp = 0;
+
+    this.slowFactor = 4;
+    this.currentTick = this.slowFactor;
 }
 
 Timer.prototype.tick = function () {
+    if(this.currentTick == this.slowFactor){
+        this.currentTick = 0;
+    } else {
+        this.currentTick++;
+    }
+    
     var wallCurrent = Date.now();
     var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
     this.wallLastTimestamp = wallCurrent;
@@ -27,12 +36,16 @@ Timer.prototype.tick = function () {
 }
 
 function GameEngine() {
+    this.paused = false;
     this.entities = [];
     this.showOutlines = false;
     this.ctx = null;
+    this.currentColor = 0; //0 = dead, 1 = alive1, 2 = alive2
+    this.colorTexts = {0:"BLACK", 1:"BLUE", 2:"ORANGE"};
     this.click = null;
     this.mouse = null;
     this.wheel = null;
+    this.drag = false;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
 }
@@ -48,19 +61,87 @@ GameEngine.prototype.init = function (ctx) {
 GameEngine.prototype.start = function () {
     var that = this;
     (function gameLoop() {
-        that.loop();
-        requestAnimFrame(gameLoop, that.ctx.canvas);
+        if(!that.paused) {
+            that.loop();
+            requestAnimFrame(gameLoop, that.ctx.canvas);
+        }
     })();
 }
 
-//Mouse eventListeners shamelessly stolen from the Ladd himself
+GameEngine.prototype.pause = function() {
+    this.paused = true;
+
+    let hint = document.getElementById("strHint");
+    hint.style.visibility = "visible";
+}
+
+GameEngine.prototype.resume = function() {
+    if(this.paused) {
+        this.paused = false;
+        this.start();
+
+        let hint = document.getElementById("strHint");
+        hint.style.visibility = "hidden";
+    }
+}
+
 GameEngine.prototype.startInput = function () {
     var that = this;
+    let btnRandom = document.getElementById("btnRandom");
+    let btnBlank = document.getElementById("btnBlank");
+    let btnPause = document.getElementById("btnPause");
+    let btnResume = document.getElementById("btnResume");
+    let btnChange = document.getElementById("btnChange");
 
-    this.ctx.canvas.addEventListener("keydown", function (e) {
-        if (String.fromCharCode(e.which) === ' ') that.space = true;
-        e.preventDefault();
-    }, false);
+    this.ctx.canvas.addEventListener('mousedown', function(e) {
+        if(that.paused) {
+            that.drag = true;
+            let universe = that.entities[0];
+            universe.updateSingleCell(e.clientX, e.clientY, that.currentColor);
+        }
+    });
+
+    this.ctx.canvas.addEventListener('mousemove', function(e) {
+        if(that.paused && that.drag) {
+            let universe = that.entities[0];
+            universe.updateSingleCell(e.clientX, e.clientY, that.currentColor);
+        }
+    });
+
+    this.ctx.canvas.addEventListener('mouseup', function(e) {
+        that.drag = false;
+    });
+
+    btnRandom.addEventListener('click', function(e) {
+        let universe = that.entities[0];
+        universe.randomizeGrid(universe.currentGen);
+        universe.randomizeGrid(universe.nextGen);
+        if(that.paused) {
+            that.draw();
+        }
+    });
+
+    btnBlank.addEventListener('click', function(e) {
+        let universe = that.entities[0];
+        universe.blankGrid(universe.currentGen);
+        universe.blankGrid(universe.nextGen);
+        if(that.paused) {
+            that.draw();
+        }
+    });
+
+    btnPause.addEventListener('click', function(e) { that.pause(); });
+
+    btnResume.addEventListener('click', function(e) { that.resume(); });
+
+    btnChange.addEventListener('click', function(e) {
+        if(that.currentColor == 2) {
+            that.currentColor = 0;
+        } else {
+            that.currentColor++;
+        }
+        btnChange.innerText = "Current Color: " + that.colorTexts[that.currentColor];
+    });
 }
 
 GameEngine.prototype.addEntity = function (entity) {
@@ -96,8 +177,10 @@ GameEngine.prototype.update = function () {
 
 GameEngine.prototype.loop = function () {
     this.clockTick = this.timer.tick();
-    this.update();
-    this.draw();
+    if(this.timer.currentTick == 0) {
+        this.update();
+        this.draw();
+    }
     this.space = null;
 }
 
