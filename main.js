@@ -78,8 +78,16 @@ Universe.prototype.update = function() {
 }
 
 Universe.prototype.updateSingleCell = function(x, y) {
-    // console.log(x + ", " + y);
-    
+    console.log(x + ", " + y);  
+
+    //update cell state:
+    let cellX = Math.floor(x / this.cellSize);
+    let cellY = Math.floor(y / this.cellSize);
+    this.currentGen[cellX][cellY].state = 1;
+
+    //draw updated state:
+    this.game.ctx.fillStyle = 'dodgerBlue'; //TODO make dependent on user choice
+    this.game.ctx.fillRect(x, y, this.cellSize, this.cellSize);
 }
 
 Universe.prototype.draw = function(ctx) {

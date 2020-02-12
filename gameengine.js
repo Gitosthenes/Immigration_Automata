@@ -100,7 +100,7 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener('mousemove', function(e) {
         if(that.paused && that.drag) {
             let universe = that.entities[0];
-            universe.updateSingleCell(Math.floor(e.clientX/universe.cellSize), Math.floor(e.clientY/universe.cellSize));
+            universe.updateSingleCell(e.clientX, e.clientY);
         }
     });
 
