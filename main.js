@@ -55,9 +55,6 @@ Universe.prototype.update = function() {
             }
             if(this.currentGen[i][j].state == 0) { //Current cell is dead
                 if(numLiveNeighbors == 3) {
-                    let onesTot = this.currentGen[i][j].neighborCounts[1];
-                    let twosTot = this.currentGen[i][j].neighborCounts[2];
-                    let newNum = this.currentGen[i][j].neighborCounts[1] > this.currentGen[i][j].neighborCounts[2] ? 1 : 2;
                     this.nextGen[i][j].state = this.currentGen[i][j].neighborCounts[1] > this.currentGen[i][j].neighborCounts[2] ? 1 : 2;
                 } else {
                     this.nextGen[i][j].state = 0;
@@ -77,16 +74,26 @@ Universe.prototype.update = function() {
     Entity.prototype.update.call(this);
 }
 
-Universe.prototype.updateSingleCell = function(x, y) {
-    console.log(x + ", " + y);  
-
+Universe.prototype.updateSingleCell = function(x, y, newState) {
     //update cell state:
     let cellX = Math.floor(x / this.cellSize);
     let cellY = Math.floor(y / this.cellSize);
-    this.currentGen[cellX][cellY].state = 1;
+    this.currentGen[cellX][cellY].state = newState;
 
     //draw updated state:
-    this.game.ctx.fillStyle = 'dodgerBlue'; //TODO make dependent on user choice
+    let color;
+    switch(newState) {
+        case 0:
+            color = 'black';
+            break;
+        case 1:
+            color = 'dodgerblue';
+            break;
+        case 2:
+            color = 'darkorange';
+            break;
+    }
+    this.game.ctx.fillStyle = color;
     this.game.ctx.fillRect(x, y, this.cellSize, this.cellSize);
 }
 

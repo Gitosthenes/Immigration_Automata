@@ -40,6 +40,8 @@ function GameEngine() {
     this.entities = [];
     this.showOutlines = false;
     this.ctx = null;
+    this.currentColor = 0; //0 = dead, 1 = alive1, 2 = alive2
+    this.colorTexts = {0:"BLACK", 1:"BLUE", 2:"ORANGE"};
     this.click = null;
     this.mouse = null;
     this.wheel = null;
@@ -68,12 +70,18 @@ GameEngine.prototype.start = function () {
 
 GameEngine.prototype.pause = function() {
     this.paused = true;
+
+    let hint = document.getElementById("strHint");
+    hint.style.visibility = "visible";
 }
 
 GameEngine.prototype.resume = function() {
     if(this.paused) {
         this.paused = false;
         this.start();
+
+        let hint = document.getElementById("strHint");
+        hint.style.visibility = "hidden";
     }
 }
 
@@ -83,24 +91,20 @@ GameEngine.prototype.startInput = function () {
     let btnBlank = document.getElementById("btnBlank");
     let btnPause = document.getElementById("btnPause");
     let btnResume = document.getElementById("btnResume");
-    
-    this.ctx.canvas.addEventListener("keydown", function (e) {
-        if (String.fromCharCode(e.which) === ' ') that.space = true;
-        e.preventDefault();
-    }, false);
+    let btnChange = document.getElementById("btnChange");
 
     this.ctx.canvas.addEventListener('mousedown', function(e) {
         if(that.paused) {
             that.drag = true;
             let universe = that.entities[0];
-            universe.updateSingleCell(Math.floor(e.clientX/universe.cellSize), Math.floor(e.clientY/universe.cellSize));
+            universe.updateSingleCell(e.clientX, e.clientY, that.currentColor);
         }
     });
 
     this.ctx.canvas.addEventListener('mousemove', function(e) {
         if(that.paused && that.drag) {
             let universe = that.entities[0];
-            universe.updateSingleCell(e.clientX, e.clientY);
+            universe.updateSingleCell(e.clientX, e.clientY, that.currentColor);
         }
     });
 
@@ -129,6 +133,15 @@ GameEngine.prototype.startInput = function () {
     btnPause.addEventListener('click', function(e) { that.pause(); });
 
     btnResume.addEventListener('click', function(e) { that.resume(); });
+
+    btnChange.addEventListener('click', function(e) {
+        if(that.currentColor == 2) {
+            that.currentColor = 0;
+        } else {
+            that.currentColor++;
+        }
+        btnChange.innerText = "Current Color: " + that.colorTexts[that.currentColor];
+    });
 }
 
 GameEngine.prototype.addEntity = function (entity) {
