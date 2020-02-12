@@ -43,6 +43,7 @@ function GameEngine() {
     this.click = null;
     this.mouse = null;
     this.wheel = null;
+    this.drag = false;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
 }
@@ -87,6 +88,25 @@ GameEngine.prototype.startInput = function () {
         if (String.fromCharCode(e.which) === ' ') that.space = true;
         e.preventDefault();
     }, false);
+
+    this.ctx.canvas.addEventListener('mousedown', function(e) {
+        if(that.paused) {
+            that.drag = true;
+            let universe = that.entities[0];
+            universe.updateSingleCell(Math.floor(e.clientX/universe.cellSize), Math.floor(e.clientY/universe.cellSize));
+        }
+    });
+
+    this.ctx.canvas.addEventListener('mousemove', function(e) {
+        if(that.paused && that.drag) {
+            let universe = that.entities[0];
+            universe.updateSingleCell(Math.floor(e.clientX/universe.cellSize), Math.floor(e.clientY/universe.cellSize));
+        }
+    });
+
+    this.ctx.canvas.addEventListener('mouseup', function(e) {
+        that.drag = false;
+    });
 
     btnRandom.addEventListener('click', function(e) {
         let universe = that.entities[0];

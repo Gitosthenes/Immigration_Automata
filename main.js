@@ -77,6 +77,11 @@ Universe.prototype.update = function() {
     Entity.prototype.update.call(this);
 }
 
+Universe.prototype.updateSingleCell = function(x, y) {
+    // console.log(x + ", " + y);
+    
+}
+
 Universe.prototype.draw = function(ctx) {
     ctx.fillStyle = 'black';
     ctx.fillRect(0,0, ctx.canvas.width, ctx.canvas.height);
