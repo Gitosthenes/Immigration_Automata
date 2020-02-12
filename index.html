@@ -2,10 +2,18 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Game</title>
+        <title>Game of Life: Immigration</title>
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <canvas id="gameWorld" width="1000" height="1000" style="background: lightslategrey;"></canvas>
+        <div class="canvas-container">
+            <canvas id="gameWorld" width="1000" height="1000" style="background: lightslategrey;"></canvas>
+            <button id="btnRandom">Random</button>
+            <button id="btnBlank">Blank</button>
+            <button id="btnPause">Pause</button>
+            <button id="btnResume">Resume</button>
+        </div>
+
         <script type="text/javascript" src="./assetmanager.js"></script>
         <script type="text/javascript" src="./gameengine.js"></script>
         <script type="text/javascript" src="./main.js"></script>

@@ -36,6 +36,7 @@ Timer.prototype.tick = function () {
 }
 
 function GameEngine() {
+    this.paused = false;
     this.entities = [];
     this.showOutlines = false;
     this.ctx = null;
@@ -57,19 +58,57 @@ GameEngine.prototype.init = function (ctx) {
 GameEngine.prototype.start = function () {
     var that = this;
     (function gameLoop() {
-        that.loop();
-        requestAnimFrame(gameLoop, that.ctx.canvas);
+        if(!that.paused) {
+            that.loop();
+            requestAnimFrame(gameLoop, that.ctx.canvas);
+        }
     })();
 }
 
-//Mouse eventListeners shamelessly stolen from the Ladd himself
+GameEngine.prototype.pause = function() {
+    this.paused = true;
+}
+
+GameEngine.prototype.resume = function() {
+    if(this.paused) {
+        this.paused = false;
+        this.start();
+    }
+}
+
 GameEngine.prototype.startInput = function () {
     var that = this;
-
+    let btnRandom = document.getElementById("btnRandom");
+    let btnBlank = document.getElementById("btnBlank");
+    let btnPause = document.getElementById("btnPause");
+    let btnResume = document.getElementById("btnResume");
+    
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === ' ') that.space = true;
         e.preventDefault();
     }, false);
+
+    btnRandom.addEventListener('click', function(e) {
+        let universe = that.entities[0];
+        universe.randomizeGrid(universe.currentGen);
+        universe.randomizeGrid(universe.nextGen);
+        if(that.paused) {
+            that.draw();
+        }
+    });
+
+    btnBlank.addEventListener('click', function(e) {
+        let universe = that.entities[0];
+        universe.blankGrid(universe.currentGen);
+        universe.blankGrid(universe.nextGen);
+        if(that.paused) {
+            that.draw();
+        }
+    });
+
+    btnPause.addEventListener('click', function(e) { that.pause(); });
+
+    btnResume.addEventListener('click', function(e) { that.resume(); });
 }
 
 GameEngine.prototype.addEntity = function (entity) {

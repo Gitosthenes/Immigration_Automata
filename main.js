@@ -19,6 +19,14 @@ Universe.prototype.randomizeGrid = function(grid) {
     }
 }
 
+Universe.prototype.blankGrid = function(grid) {
+    for(let i = 0; i < this.rows; i++) {
+        for(let j = 0; j < this.cols; j++) {
+            grid[i][j].state = 0;
+        }
+    }
+}
+
 Universe.prototype.getLiveNeighborCounts = function(row, col) {
     let neighborVals = [];
     for(let i = row-1; i < row+2; i++) {
@@ -47,6 +55,9 @@ Universe.prototype.update = function() {
             }
             if(this.currentGen[i][j].state == 0) { //Current cell is dead
                 if(numLiveNeighbors == 3) {
+                    let onesTot = this.currentGen[i][j].neighborCounts[1];
+                    let twosTot = this.currentGen[i][j].neighborCounts[2];
+                    let newNum = this.currentGen[i][j].neighborCounts[1] > this.currentGen[i][j].neighborCounts[2] ? 1 : 2;
                     this.nextGen[i][j].state = this.currentGen[i][j].neighborCounts[1] > this.currentGen[i][j].neighborCounts[2] ? 1 : 2;
                 } else {
                     this.nextGen[i][j].state = 0;
@@ -75,10 +86,10 @@ Universe.prototype.draw = function(ctx) {
             let x = i * this.cellSize;
             let y = j * this.cellSize;
             if(this.currentGen[i][j].state == 1) {
-                ctx.fillStyle = 'green';
+                ctx.fillStyle = 'dodgerblue';
                 ctx.fillRect(x, y, this.cellSize, this.cellSize);
             } else if(this.currentGen[i][j].state == 2) {
-                ctx.fillStyle = 'red';
+                ctx.fillStyle = 'darkorange';
                 ctx.fillRect(x, y, this.cellSize, this.cellSize);
             }
         }
@@ -100,7 +111,10 @@ function setupGrid(rows, cols) {
 
 function Cell(state) {
     this.state = state;
-    this.neighborCounts = {};
+    this.neighborCounts = {
+        1: 0,
+        2: 0
+    };
 }
 
 ASSET_MANAGER = new AssetManager();
