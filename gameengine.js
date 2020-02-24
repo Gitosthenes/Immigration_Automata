@@ -15,7 +15,7 @@ function Timer() {
     this.maxStep = 0.05;
     this.wallLastTimestamp = 0;
 
-    this.slowFactor = 4;
+    this.slowFactor = 0; //Game updates at 1/{slowFactor+1} speed, where 0 is as fast as possible
     this.currentTick = this.slowFactor;
 }
 
