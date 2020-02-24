@@ -7,14 +7,16 @@
     </head>
     <body>
         <div class="canvas-container">
+            <strong>Immigration variation of Conway's Game of Life; only difference being that when a cell comes back to life, it takes on the color of its most dominant neighbor.</strong>
             <canvas id="gameWorld" width="600" height="600" style="background: lightslategrey;"></canvas>
+            <button id="btnSave">Save</button>
+            <button id="btnLoad">Load</button>
             <button id="btnRandom">Random</button>
             <button id="btnBlank">Blank</button>
             <button id="btnPause">Pause</button>
             <button id="btnResume">Resume</button>
             <button id="btnChange">Current Color: BLACK</button>
-            <strong style="visibility: hidden;" id="strHint">HINT:Try changing the brush color and dragging the mouse on the canvas!</strong>
-            <p>Immigration variation of Conway's Game of Life; only difference being that when a cell comes back to life, it takes on the color of its most dominant neighbor.</p>
+            <p><strong>NOTE</strong>: Game must be paused to save, load, or draw cells on the board!</p>
         </div>
 
         <script type="text/javascript" src="./assetmanager.js"></script>

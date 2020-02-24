@@ -70,23 +70,19 @@ GameEngine.prototype.start = function () {
 
 GameEngine.prototype.pause = function() {
     this.paused = true;
-
-    let hint = document.getElementById("strHint");
-    hint.style.visibility = "visible";
 }
 
 GameEngine.prototype.resume = function() {
     if(this.paused) {
         this.paused = false;
         this.start();
-
-        let hint = document.getElementById("strHint");
-        hint.style.visibility = "hidden";
     }
 }
 
 GameEngine.prototype.startInput = function () {
     var that = this;
+    let offsetX = -8;
+    let offSetY = -45;
     let btnRandom = document.getElementById("btnRandom");
     let btnBlank = document.getElementById("btnBlank");
     let btnPause = document.getElementById("btnPause");
@@ -96,15 +92,13 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener('mousedown', function(e) {
         if(that.paused) {
             that.drag = true;
-            let universe = that.entities[0];
-            universe.updateSingleCell(e.clientX, e.clientY, that.currentColor);
+            that.entities[0].updateSingleCell(e.clientX+offsetX, e.clientY+offSetY, that.currentColor);
         }
     });
 
     this.ctx.canvas.addEventListener('mousemove', function(e) {
         if(that.paused && that.drag) {
-            let universe = that.entities[0];
-            universe.updateSingleCell(e.clientX, e.clientY, that.currentColor);
+            that.entities[0].updateSingleCell(e.clientX+offsetX, e.clientY+offSetY, that.currentColor);
         }
     });
 
