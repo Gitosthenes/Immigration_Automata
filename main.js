@@ -1,15 +1,26 @@
-function Universe(game, cellSize) {
-    this.game = game;
-    this.cellSize = cellSize;
-    this.rows = game.surfaceWidth / cellSize;
-    this.cols = game.surfaceHeight / cellSize;
-    this.currentGen = setupGrid(this.rows, this.cols);
-    this.nextGen = setupGrid(this.rows, this.cols);
-    this.randomizeGrid(this.currentGen);
+function Universe(game, cellSize, copy) {
+    if(copy) {
+        this.createCopy(copy);
+    } else {
+        this.game = game;
+        this.cellSize = cellSize;
+        this.rows = game.surfaceWidth / cellSize;
+        this.cols = game.surfaceHeight / cellSize;
+        this.currentGen = setupGrid(this.rows, this.cols);
+        this.nextGen = setupGrid(this.rows, this.cols);
+        this.randomizeGrid(this.currentGen);
+    }
 }
-
 Universe.prototype = new Entity();
 Universe.prototype.constructor = Universe;
+
+Universe.prototype.createCopy = function(copy) {
+    this.cellSize = copy.cellSize;
+    this.rows = copy.rows;
+    this.cols = copy.cols;
+    this.currentGen = copy.currentGen;
+    this.nextGen = copy.nextGen;
+}
 
 Universe.prototype.randomizeGrid = function(grid) {
     for(let i = 0; i < this.rows; i++) {

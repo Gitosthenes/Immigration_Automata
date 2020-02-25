@@ -1,3 +1,13 @@
+let ENGINE, SOCKET;
+
+window.onload = function () {
+    SOCKET = io.connect("http://24.16.255.56:8888");
+
+    SOCKET.on("load", function(data) {
+        ENGINE.load(data);
+    });
+}
+
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
@@ -15,7 +25,7 @@ function Timer() {
     this.maxStep = 0.05;
     this.wallLastTimestamp = 0;
 
-    this.slowFactor = 4;
+    this.slowFactor = 0; //Game updates at 1/{slowFactor+1} speed, where 0 is as fast as possible
     this.currentTick = this.slowFactor;
 }
 
@@ -59,88 +69,124 @@ GameEngine.prototype.init = function (ctx) {
 }
 
 GameEngine.prototype.start = function () {
-    var that = this;
+    ENGINE = this;
     (function gameLoop() {
-        if(!that.paused) {
-            that.loop();
-            requestAnimFrame(gameLoop, that.ctx.canvas);
+        if(!ENGINE.paused) {
+            ENGINE.loop();
+            requestAnimFrame(gameLoop, ENGINE.ctx.canvas);
         }
     })();
 }
 
 GameEngine.prototype.pause = function() {
     this.paused = true;
-
-    let hint = document.getElementById("strHint");
-    hint.style.visibility = "visible";
 }
 
 GameEngine.prototype.resume = function() {
     if(this.paused) {
         this.paused = false;
         this.start();
-
-        let hint = document.getElementById("strHint");
-        hint.style.visibility = "hidden";
     }
 }
 
+GameEngine.prototype.load = function(save) {
+    let data = JSON.parse(JSON.stringify(save.data));
+    let universe = new Universe(null, null, data);
+    universe.game = this;
+    this.entities[0] = universe;
+    this.draw();
+}
+
 GameEngine.prototype.startInput = function () {
-    var that = this;
+    let offsetX = -8;
+    let offSetY = -45;
+    let btnSave = document.getElementById("btnSave");
+    let btnLoad = document.getElementById("btnLoad");
     let btnRandom = document.getElementById("btnRandom");
     let btnBlank = document.getElementById("btnBlank");
     let btnPause = document.getElementById("btnPause");
     let btnResume = document.getElementById("btnResume");
     let btnChange = document.getElementById("btnChange");
 
+    //! MOUSE LISTENERS
     this.ctx.canvas.addEventListener('mousedown', function(e) {
-        if(that.paused) {
-            that.drag = true;
-            let universe = that.entities[0];
-            universe.updateSingleCell(e.clientX, e.clientY, that.currentColor);
+        if(ENGINE.paused) {
+            ENGINE.drag = true;
+            ENGINE.entities[0].updateSingleCell(e.clientX+offsetX, e.clientY+offSetY, ENGINE.currentColor);
         }
     });
 
     this.ctx.canvas.addEventListener('mousemove', function(e) {
-        if(that.paused && that.drag) {
-            let universe = that.entities[0];
-            universe.updateSingleCell(e.clientX, e.clientY, that.currentColor);
+        if(ENGINE.paused && ENGINE.drag) {
+            ENGINE.entities[0].updateSingleCell(e.clientX+offsetX, e.clientY+offSetY, ENGINE.currentColor);
         }
     });
 
-    this.ctx.canvas.addEventListener('mouseup', function(e) {
-        that.drag = false;
+    this.ctx.canvas.addEventListener('mouseup', function() {
+        ENGINE.drag = false;
     });
 
-    btnRandom.addEventListener('click', function(e) {
-        let universe = that.entities[0];
+    //! BUTTON CLICK LISTENERS
+    btnSave.addEventListener('click', function() {
+        if(ENGINE.paused) {
+            let universe = ENGINE.entities[0];
+            let game = universe.game;
+            delete universe.game;
+            SOCKET.emit("save", {
+                studentname: "abledso3",
+                statename: "TOTALLY_NOT_MALWARE.exe",
+                data: universe
+            });
+            universe.game = game;
+        }
+    });
+
+    btnLoad.addEventListener('click', function() {
+        if(ENGINE.paused) {
+            SOCKET.emit("load", {
+                studentname: "abledso3",
+                statename: "TOTALLY_NOT_MALWARE.exe"
+            });
+        }
+    });
+
+    btnRandom.addEventListener('click', function() {
+        let universe = ENGINE.entities[0];
         universe.randomizeGrid(universe.currentGen);
         universe.randomizeGrid(universe.nextGen);
-        if(that.paused) {
-            that.draw();
+        if(ENGINE.paused) {
+            ENGINE.draw();
         }
     });
 
-    btnBlank.addEventListener('click', function(e) {
-        let universe = that.entities[0];
+    btnBlank.addEventListener('click', function() {
+        let universe = ENGINE.entities[0];
         universe.blankGrid(universe.currentGen);
         universe.blankGrid(universe.nextGen);
-        if(that.paused) {
-            that.draw();
+        if(ENGINE.paused) {
+            ENGINE.draw();
         }
     });
 
-    btnPause.addEventListener('click', function(e) { that.pause(); });
+    btnPause.addEventListener('click', function() { 
+        ENGINE.pause(); 
+        btnSave.disabled = false;
+        btnLoad.disabled = false;
+    });
 
-    btnResume.addEventListener('click', function(e) { that.resume(); });
+    btnResume.addEventListener('click', function() { 
+        ENGINE.resume();
+        btnSave.disabled = true;
+        btnLoad.disabled = true;
+    });
 
-    btnChange.addEventListener('click', function(e) {
-        if(that.currentColor == 2) {
-            that.currentColor = 0;
+    btnChange.addEventListener('click', function() {
+        if(ENGINE.currentColor == 2) {
+            ENGINE.currentColor = 0;
         } else {
-            that.currentColor++;
+            ENGINE.currentColor++;
         }
-        btnChange.innerText = "Current Color: " + that.colorTexts[that.currentColor];
+        btnChange.innerText = "Current Color: " + ENGINE.colorTexts[ENGINE.currentColor];
     });
 }
 
