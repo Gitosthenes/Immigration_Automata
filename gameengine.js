@@ -1,12 +1,12 @@
 let ENGINE, SOCKET;
 
-window.onload = function () {
-    SOCKET = io.connect("http://24.16.255.56:8888");
+// window.onload = function () {
+//     SOCKET = io.connect("http://24.16.255.56:8888");
 
-    SOCKET.on("load", function(data) {
-        ENGINE.load(data);
-    });
-}
+//     SOCKET.on("load", function(data) {
+//         ENGINE.load(data);
+//     });
+// }
 
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
 window.requestAnimFrame = (function () {
@@ -127,28 +127,28 @@ GameEngine.prototype.startInput = function () {
     });
 
     //! BUTTON CLICK LISTENERS
-    btnSave.addEventListener('click', function() {
-        if(ENGINE.paused) {
-            let universe = ENGINE.entities[0];
-            let game = universe.game;
-            delete universe.game;
-            SOCKET.emit("save", {
-                studentname: "abledso3",
-                statename: "TOTALLY_NOT_MALWARE.exe",
-                data: universe
-            });
-            universe.game = game;
-        }
-    });
+    // btnSave.addEventListener('click', function() {
+    //     if(ENGINE.paused) {
+    //         let universe = ENGINE.entities[0];
+    //         let game = universe.game;
+    //         delete universe.game;
+    //         SOCKET.emit("save", {
+    //             studentname: "abledso3",
+    //             statename: "TOTALLY_NOT_MALWARE.exe",
+    //             data: universe
+    //         });
+    //         universe.game = game;
+    //     }
+    // });
 
-    btnLoad.addEventListener('click', function() {
-        if(ENGINE.paused) {
-            SOCKET.emit("load", {
-                studentname: "abledso3",
-                statename: "TOTALLY_NOT_MALWARE.exe"
-            });
-        }
-    });
+    // btnLoad.addEventListener('click', function() {
+    //     if(ENGINE.paused) {
+    //         SOCKET.emit("load", {
+    //             studentname: "abledso3",
+    //             statename: "TOTALLY_NOT_MALWARE.exe"
+    //         });
+    //     }
+    // });
 
     btnRandom.addEventListener('click', function() {
         let universe = ENGINE.entities[0];
