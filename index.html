@@ -3,14 +3,15 @@
     <head>
         <meta charset="utf-8">
         <title>Game of Life: Immigration</title>
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
         <div class="canvas-container">
             <strong>Immigration variation of Conway's Game of Life; only difference being that when a cell comes back to life, it takes on the color of its most dominant neighbor.</strong>
             <canvas id="gameWorld" width="600" height="600" style="background: lightslategrey;"></canvas>
-            <button id="btnSave" disabled>Save</button>
-            <button id="btnLoad" disabled>Load</button>
+            <!-- <button id="btnSave" disabled>Save</button>
+            <button id="btnLoad" disabled>Load</button> -->
             <button id="btnRandom">Random</button>
             <button id="btnBlank">Blank</button>
             <button id="btnPause">Pause</button>
@@ -21,7 +22,7 @@
 
         <script type="text/javascript" src="./assetmanager.js"></script>
         <script type="text/javascript" src="./gameengine.js"></script>
-        <script type="text/javascript" src="http://24.16.255.56:8888/socket.io/socket.io.js"></script>
+        <!-- <script type="text/javascript" src="http://24.16.255.56:8888/socket.io/socket.io.js"></script> -->
         <script type="text/javascript" src="./main.js"></script>
     </body>
 </html>
